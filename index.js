@@ -127,8 +127,8 @@ Shopify.prototype.request = function request(url, method, key, params) {
   }
 
   return got(options).then(res => {
-    const body = res.body;
-
+    const body = res;
+    
     this.updateLimits(res.headers['x-shopify-shop-api-call-limit']);
 
     if (res.statusCode === 202) {
@@ -139,7 +139,10 @@ Shopify.prototype.request = function request(url, method, key, params) {
         .then(() => this.request(newUrl, 'GET', key));
     }
 
-    if (key) return body[key];
+    if (key) return {
+      body: body.body[key],
+      headers: body.headers
+    };
     return body || {};
   }, err => {
     this.updateLimits(
